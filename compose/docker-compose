@@ -1,0 +1,129 @@
+version: '3.3'
+
+services:
+
+  portal-api:
+    image: portal-api:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - /var/log/app/portal-api:/var/log
+      - /usr/src/app/portal-api:/usr/src/app
+    environment:
+      DOMAIN_CDN: 
+      DB_NAME:
+      DB_USER: 
+      DB_PASS: 
+      DB_HOST: 172.17.0.1
+      DB_PORT: 1433
+      NODE_ENV: develop
+      APP_WELCOME: TSH API Dev
+      APP_URL: http://localhost:3000/
+      HASH_SECRET_KEY: secret
+      RUN_LOCAL: yes
+      PORT: 3001
+      WEBSITE: 
+      SECRET_KEY: 
+      UPLOAD_APIKEY: 
+      MAIL_SERVER: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USER: 
+      MAIL_PASSWORD: 
+      MAIL_FROM: 
+
+    networks:
+      app_net:
+
+  portal-web:
+    image: portal-web:latest
+    ports:
+      - "4000:4000"
+    volumes:
+      - /var/log/app/portal-web:/var/log
+      - /usr/src/app/portal-web:/usr/src/app
+    environment:
+      REACT_APP_API_URL_ROOT: 
+      REACT_APP_CDN: 
+      PORT: 4000
+    networks:
+      app_net:
+
+  web-api:
+    image: web-api:latest
+    ports:
+      - "4001:4001"
+    volumes:
+      - /var/log/app/web-api:/var/log
+      - /usr/src/app/web-api:/usr/src/app
+    environment:
+      DOMAIN_CDN:
+      DB_NAME: 
+      DB_USER: 
+      DB_PASS: 
+      DB_HOST: 172.17.0.1
+      DB_PORT: 1433
+      NODE_ENV: develop
+      APP_WELCOME: TSH API Dev
+      APP_URL: localhost:4001
+      HASH_SECRET_KEY: secret
+      RUN_LOCAL: yes
+      PORT: 4001
+      UPLOAD_APIKEY: 
+      OTP_URL: 
+      OTP_AUTHORIZATION: 
+      WEBSITE: 
+      SECRET_KEY: 
+      MAIL_SERVER: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USER: 
+      MAIL_PASSWORD: 
+      MAIL_FROM: 
+      MAIL_SECURE: 0
+      VNP_vnp_TmnCode: 
+      VNP_vnp_HashSecret: 
+      VNP_vnp_Url: 
+      VNP_vnp_ReturnUrl: 
+      AES_KEY: 
+    networks:
+      app_net:
+
+  web-app:
+    image: web-app:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/log/app/web-app:/var/log
+      - /usr/src/app/web-app:/usr/src/app
+    environment:
+      API:
+      NEXT_PUBLIC_API: 
+      WEB_URL: 
+      NEXT_PUBLIC_WEB_URL: 
+      AES_KEY: 
+      NEXT_PUBLIC_AES_KEY: 
+      VNP_vnp_HashSecret: 
+      NEXT_PUBLIC_VNP_vnp_HashSecret: 
+      CDN_URL:
+      NEXT_PUBLIC_WEB_URL_AFFILIATE: 
+     
+    networks:
+      app_net:
+
+  cdn-server:
+    image: cdn-server:latest
+    ports:
+      - "2202:2202"
+    volumes:
+      - /var/log/app/cdn-server:/var/log
+      - /usr/src/app/cdn-server:/usr/src/app
+    environment:
+      API_KEY: cc3f5035-caa7-4d0a-a6bb-c7c55d5f14bb
+      NODE_ENV: development
+      PORT: 2202
+    networks:
+      app_net:
+
+# docker create network -d overlay app_net
+networks:
+  app_net:
+    external: true
