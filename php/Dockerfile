@@ -1,16 +1,41 @@
-FROM phpearth/php:7.3-nginx
+FROM php:7.4-fpm
 
-COPY nginx.conf /etc/nginx/nginx.conf
+RUN apt-get update && \
+	apt-get install -y \
+        nginx \
+        zlib1g-dev \
+        libpng-dev \
+        curl \
+        libcurl4-openssl-dev \
+        pkg-config \
+        libssl-dev \
+        libzip-dev \
+        libpq-dev \
+	supervisor
 
-COPY vhost.conf /etc/nginx/conf.d/default.conf
+# Install postgres extension docker-php-ext-install pdo pgsql pdo_pgsql
+RUN docker-php-ext-install zip \
+	&& docker-php-ext-install exif \
+	&& docker-php-ext-install gd \
+        && docker-php-ext-install pdo \
+        && docker-php-ext-install pgsql \
+        && docker-php-ext-install pdo_pgsql \
+        && docker-php-ext-install mysqli \
+        && docker-php-ext-install pdo_mysql
 
-COPY www.conf /etc/php/7.3/php-fpm.d/www.conf
+# Install mongodb extension
+RUN pecl install mongodb \
+	&& docker-php-ext-enable mongodb
 
-RUN apk add --no-cache \
-    php7.3-mbstring \
-    php7.3-dom \
-    php7.3-xml \
-    php7.3-mysqli \
-    php7.3-pdo \
-    php7.3-pdo_mysql \
-    composer
+# Install composer
+RUN apt-get install -y --no-install-recommends git zip && \
+	curl --silent --show-error https://getcomposer.org/installer | php
+
+#Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Configure Services and Ports
+COPY default /etc/nginx/sites-available/
+COPY php.ini /usr/local/etc/php
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+EXPOSE 80 443
